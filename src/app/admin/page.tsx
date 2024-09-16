@@ -1,17 +1,23 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import db from "@/db/db";
-import { formatNumber, formatCurrency } from "@/lib/formatters";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import db from "@/db/db"
+import { formatCurrency, formatNumber } from "@/lib/formatters"
 
 async function getSalesData() {
   const data = await db.order.aggregate({
     _sum: { pricePaidInCents: true },
     _count: true,
-  });
+  })
 
   return {
     amount: (data._sum.pricePaidInCents || 0) / 100,
     numberOfSales: data._count,
-  };
+  }
 }
 
 async function getUserData() {
@@ -20,21 +26,24 @@ async function getUserData() {
     db.order.aggregate({
       _sum: { pricePaidInCents: true },
     }),
-  ]);
+  ])
 
   return {
     userCount,
-    averageValuePerUser: userCount === 0 ? 0 : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
-  };
+    averageValuePerUser:
+      userCount === 0
+        ? 0
+        : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
+  }
 }
 
 async function getProductData() {
   const [activeCount, inactiveCount] = await Promise.all([
     db.product.count({ where: { isAvailableForPurchase: true } }),
-    db.product.count({ where: { isAvailableForPurchase: false } })
-  ]);
+    db.product.count({ where: { isAvailableForPurchase: false } }),
+  ])
 
-  return { activeCount, inactiveCount };
+  return { activeCount, inactiveCount }
 }
 
 export default async function AdminDashboard() {
@@ -68,10 +77,10 @@ export default async function AdminDashboard() {
 }
 
 type DashboardCardProps = {
-  title: string;
-  subtitle: string;
-  body: string;
-};
+  title: string
+  subtitle: string
+  body: string
+}
 
 function DashboardCard({ title, subtitle, body }: DashboardCardProps) {
   return (
@@ -84,5 +93,5 @@ function DashboardCard({ title, subtitle, body }: DashboardCardProps) {
         <p>{body}</p>
       </CardContent>
     </Card>
-  );
+  )
 }
